@@ -8,25 +8,53 @@ from project.models import User, Post, Comment
 from . import app
 
 
+@app.route('/', methods=['GET'])
+def index():
+    return """
+    <h1> Social media API assignment </h1>
+    <h2> Routes </h2>
+    <ul>
+    
+        <li> <b> /api/authenticate </b> POST route to authenticate a user and get a token </li>
+        <li> <b> /api/user </b> GET route to get the current user data </li>
+        <li> <b> /api/follow/<id> </b> POST route to follow a user </li>
+        <li> <b> /api/unfollow/<id> </b> POST route to unfollow a user </li>
+        <li> <b> /api/all_posts </b> GET route to get all posts </li>
+        <li> <b> /api/posts </b> POST route to create a post </li>
+        <li> <b> /api/posts/<id> </b> GET route to get a post </li>
+        <li> <b> /api/posts/<id> </b> DELETE route to delete a post </li>
+        <li> <b> /api/like/<id> </b> POST route to like a post </li>
+        <li> <b> /api/unlike/<id> </b> POST route to unlike a post </li>
+        <li> <b> /api/comments/<id> </b> POST route to comment on a post </li>
+        
+    </ul>
+    
+    For any more details contact me at <a href="https://bit.ly/s_p_k" target="_blank">https://bit.ly/s_p_k</a>
+    
+    """
+
+
+# ---------------------------------- AUTHENTICATION MIDDLEWARE ---------------------------------------------------------
 def auth_required(f):
     """
     Decorator to check if the request contains a valid token i.e it acts as a middleware for user authentication
     :param f: request handler function
     :return: requested handler function or json response with error message
     """
+
     @wraps(f)
     def auth_wrapper(*args, **kwargs):
         token = request.headers.get('Authorization')
         if token:
             try:
                 serializer = Serializer('123')  # secret key to decode the token '123', In real world use ENV variables
-                data = serializer.loads(token, max_age=24 * 60 * 60) # max_age is the expiration 24 hours
+                data = serializer.loads(token, max_age=24 * 60 * 60)  # max_age is the expiration 24 hours
                 return f(data, *args, **kwargs)
-            except SignatureExpired: # if token is expired
+            except SignatureExpired:  # if token is expired
                 return jsonify({'error': 'Token has expired'}), 401
-            except BadSignature: # if token is invalid
+            except BadSignature:  # if token is invalid
                 return jsonify({'error': 'Invalid token'}), 401
-        else: # if token is missing in the request header
+        else:  # if token is missing in the request header
             return jsonify({'error': 'Token is missing'}), 401
 
     return auth_wrapper
@@ -185,8 +213,8 @@ def get_post(id):
     :param id: id of the post to get, don't need to be authenticated to access this route as it was not mentioned in the assignment
     :return: json response containing the id, title, description, number of likes and number of comments of the post
     """
-    post = Post.objects(id=id).first() # get post with given id
-    if post: # if post exists
+    post = Post.objects(id=id).first()  # get post with given id
+    if post:  # if post exists
         json_data = {
             'id': str(post.id),
             'title': post.title,
