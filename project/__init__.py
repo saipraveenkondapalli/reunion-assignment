@@ -7,7 +7,9 @@ app.config['SECRET_KEY'] = 'super-secret'
 # MongoDB configuration
 app.config['MONGODB_SETTINGS'] = {
     'db': 'flask',
-    'host': 'mongodb+srv://flask_mongo_db:qazwsxedc@cluster0.8qy3w5u.mongodb.net/Reunion?retryWrites=true&w=majority'
+    'host': 'mongodb+srv://saipraveenkondapalli0:0Ul0zHoeuB87yxgL@cluster0.v80uxg8.mongodb.net/reunion?retryWrites=true&w=majority'
 }
 
 db = MongoEngine(app)
+
+
