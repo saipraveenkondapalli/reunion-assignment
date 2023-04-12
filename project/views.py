@@ -2,7 +2,7 @@ import os
 import uuid
 from functools import wraps
 
-from flask import request, jsonify
+from flask import request, jsonify, json
 from itsdangerous import URLSafeSerializer as Serializer, BadSignature, SignatureExpired
 
 from project.models import User, Post, Comment
@@ -153,7 +153,7 @@ def get_all_posts():
             json_data.append({'id': str(post.id), 'title': post.title, 'desc': post.description,
                               'created_at': post.created_time, 'comments': comments, 'likes': len(post.likes)})
 
-        return jsonify(json_data), 200
+        return jsonify(json.loads(json.dumps(json_data, indent=4))), 200
     else:
         # return an error message if no posts found
         return jsonify({'error': 'No posts found'}), 404
@@ -323,6 +323,6 @@ def create_comment(data, id):
         comment.id = str(uuid.uuid4())  # generate random id, guaranteed to be unique
         post.comments.append(comment)
         post.save()
-        return jsonify({"Comment-ID": comment.id}), 201
+        return jsonify({"Comment-ID": comment.id}), 200
     else:
         return jsonify({'error': 'Post with given id not found'}), 404

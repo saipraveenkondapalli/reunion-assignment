@@ -2,7 +2,7 @@ import json
 import pytest
 
 from project.app import app
-from project.models import User
+from project.models import User, Post
 
 
 @pytest.fixture
@@ -106,8 +106,10 @@ def test_comment_positive(client):
     :param client:
     :return:
     """
+    # get the highest post id
+    id = Post.objects().order_by('-id').first().id
     token = login(client, 1)
-    response = client.post('/api/comment/2',
+    response = client.post(f'/api/comment/{id}',
                            headers={'Authorization': token},
                            data=json.dumps({'comment': 'Test comment'}),
                            content_type='application/json')

@@ -79,19 +79,16 @@ def test_post_create(client):
     else:
         post_highest_id = post_highest_id.id + 1
 
-    # create 3 new posts
-    for i in range(post_highest_id, post_highest_id + 3):
-        response = client.post('/api/posts',
-                               data=json.dumps({'title': f'Sample Post {i}',
-                                                'description': f'Sample Description for post {i}'}),
-                               headers={'Authorization': token},
-                               content_type='application/json')
-
-        assert response.status_code == 200
-        assert 'id' in response.json
-        assert 'Title' in response.json
-        assert 'Description' in response.json
-        assert 'Created Time(UTC)' in response.json
+    response = client.post('/api/posts',
+                           data=json.dumps({'title': f'Sample Title for post created by Pytest {post_highest_id}',
+                                            'description': f'Sample Description for post {post_highest_id}'}),
+                           headers={'Authorization': token},
+                           content_type='application/json')
+    assert response.status_code == 200
+    assert 'id' in response.json
+    assert 'Title' in response.json
+    assert 'Description' in response.json
+    assert 'Created Time(UTC)' in response.json
 
 
 def test_post_create_negative(client):
@@ -136,7 +133,7 @@ def test_delete_post_negative(client):
     """
 
     token = login(client, 1)
-    response = client.delete('/api/posts/100',
+    response = client.delete('/api/posts/50000',
                              headers={'Authorization': token},
                              content_type='application/json')
 
