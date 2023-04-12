@@ -1,3 +1,4 @@
+import os
 import uuid
 from functools import wraps
 
@@ -7,31 +8,7 @@ from itsdangerous import URLSafeSerializer as Serializer, BadSignature, Signatur
 from project.models import User, Post, Comment
 from . import app
 
-
-@app.route('/', methods=['GET'])
-def index():
-    return """
-    <h1> Social media API assignment </h1>
-    <h2> Routes </h2>
-    <ul>
-    
-        <li> <b> /api/authenticate </b> POST route to authenticate a user and get a token </li>
-        <li> <b> /api/user </b> GET route to get the current user data </li>
-        <li> <b> /api/follow/<id> </b> POST route to follow a user </li>
-        <li> <b> /api/unfollow/<id> </b> POST route to unfollow a user </li>
-        <li> <b> /api/all_posts </b> GET route to get all posts </li>
-        <li> <b> /api/posts </b> POST route to create a post </li>
-        <li> <b> /api/posts/<id> </b> GET route to get a post </li>
-        <li> <b> /api/posts/<id> </b> DELETE route to delete a post </li>
-        <li> <b> /api/like/<id> </b> POST route to like a post </li>
-        <li> <b> /api/unlike/<id> </b> POST route to unlike a post </li>
-        <li> <b> /api/comments/<id> </b> POST route to comment on a post </li>
-        
-    </ul>
-    
-    For any more details contact me at <a href="https://bit.ly/s_p_k" target="_blank">https://bit.ly/s_p_k</a>
-    
-    """
+SECRET_KEY = os.environ.get('SECRET_KEY')  # secret key for token generation
 
 
 # ---------------------------------- AUTHENTICATION MIDDLEWARE ---------------------------------------------------------
@@ -47,7 +24,7 @@ def auth_required(f):
         token = request.headers.get('Authorization')
         if token:
             try:
-                serializer = Serializer('123')  # secret key to decode the token '123', In real world use ENV variables
+                serializer = Serializer(SECRET_KEY)
                 data = serializer.loads(token, max_age=24 * 60 * 60)  # max_age is the expiration 24 hours
                 return f(data, *args, **kwargs)
             except SignatureExpired:  # if token is expired
@@ -55,7 +32,7 @@ def auth_required(f):
             except BadSignature:  # if token is invalid
                 return jsonify({'error': 'Invalid token'}), 401
         else:  # if token is missing in the request header
-            return jsonify({'error': 'Token is missing'}), 401
+            return jsonify({'error': 'Token is missing'}), 400
 
     return auth_wrapper
 
@@ -66,23 +43,23 @@ def auth_required(f):
 @app.route('/api/authenticate', methods=['POST'])
 def authenticate():
     """
-    # Checks if user exists and password is correct then returns a token in a json response email and password are
-    # taken from the request body via request.json
+    # Checks if user exists and password is correct then returns a token in a json response,
+    # email and password are taken from the request body via request.json
     # using plain passwords for the sake of simplicity for this assigment,
-      in real world applications we should use hashing we could use flask-bcrypt
+      in real world applications we should use hashing we could use flask-bcrypt or something similar
     """
+    if not request.json or 'email' not in request.json or 'password' not in request.json:
+        return jsonify({'error': 'Email or Password Missing'}), 400
 
     email = request.json.get('email')
     password = request.json.get('password')
 
     user = User.objects(email=email).first()
     if user and user.password == password:
-        # secret key '123' to encode the user data,
-        # in real world use use a more secure key and access it via env variables.
-        s = Serializer('123')
+        s = Serializer(SECRET_KEY)
         token = s.dumps({'email': user.email})
-
         return jsonify({'token': token}), 200
+
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
@@ -125,9 +102,9 @@ def follow(data, id):
             user_to_follow.save()
             return jsonify({'message': 'User followed successfully'}), 200
         else:
-            return jsonify({'message': 'You already follow this user'}), 202
+            return jsonify({'message': 'You already follow this user'}), 200
     else:
-        return jsonify({'message': 'User with given ID not found'}), 404
+        return jsonify({'error': 'User with given ID not found'}), 404
 
 
 @app.route('/api/unfollow/<id>', methods=['POST'])
@@ -152,9 +129,9 @@ def unfollow(data, id):
             return jsonify(
                 {'message': f'Authenticated User  unfollowed {user_to_unfollow.name} with {id} successfully'}), 200
         else:
-            return jsonify({'message': f'You are not following this user with id {id}'}), 202
+            return jsonify({'message': f'You are not following this user with id {id}'}), 200
     else:
-        return jsonify({'message': f'User with given {id} not found'}), 404
+        return jsonify({'error': f'User with given {id} not found'}), 404
 
 
 # ------------------------------------------------- GET, CREATE, DELETE POSTS -----------------------------------------
@@ -179,7 +156,7 @@ def get_all_posts():
         return jsonify(json_data), 200
     else:
         # return an error message if no posts found
-        return jsonify({'message': 'No posts found'}), 404
+        return jsonify({'error': 'No posts found'}), 404
 
 
 @app.route('/api/posts', methods=['POST'])
@@ -193,8 +170,10 @@ def create_post(data):
     :param data: data returned from the auth_required decorator that contains the email of the current user
     :return: json response containing the id, title, description and created time of the created post with code 201
     """
+
     if not request.json or 'title' not in request.json or 'description' not in request.json:
         return jsonify({'error': 'Title or description  is missing'}), 400
+
     current_user_email = data['email']
     current_user = User.objects(email=current_user_email).first()
     # UTC time
@@ -204,7 +183,7 @@ def create_post(data):
     post = Post.objects(id=post.id).first()
 
     return jsonify({'id': str(post.id), 'Title': post.title, 'Description': post.description,
-                    'Created Time(UTC)': post.created_time}), 201
+                    'Created Time(UTC)': post.created_time}), 200
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
@@ -225,7 +204,7 @@ def get_post(id):
         return jsonify(json_data), 200
     else:
         # if post does not exists with given id, return response with code 404
-        return jsonify({'message': 'Post with given id not found'}), 404
+        return jsonify({'error': 'Post with given id not found'}), 404
 
 
 @app.route('/api/posts/<id>', methods=['DELETE'])
@@ -238,6 +217,7 @@ def delete_post(data, id):
     :param id: id of the post to delete
     :return: json response containing a message
     """
+
     current_user_email = data['email']
     current_user = User.objects(email=current_user_email).first()
     post = Post.objects(id=id).first()
@@ -248,10 +228,10 @@ def delete_post(data, id):
             return jsonify({'message': 'Post deleted successfully'}), 200
         else:
             # unauthorized user is trying to delete the post
-            return jsonify({'message': 'You are not authorized to delete this post'}), 401
+            return jsonify({'error': 'You are not authorized to delete this post'}), 401
     else:
         # post with given id not found or post already deleted
-        return jsonify({'message': 'Post with given id not found or Post already deleted'}), 401
+        return jsonify({'message': 'Post with given id not found or Post already deleted'}), 404
 
 
 # --------------------------------------------------------------------------------------------------------------------
@@ -280,10 +260,10 @@ def like_post(data, id):
             return jsonify({'message': 'Post liked successfully'}), 200
         else:
             # user already liked the post
-            return jsonify({'message': 'You already liked this post'}), 202
+            return jsonify({'message': 'You already liked this post'}), 200
     else:
         # post with given id not found
-        return jsonify({'message': 'Post with given id not found'}), 404
+        return jsonify({'error': 'Post with given id not found'}), 404
 
 
 @app.route('/api/unlike/<id>', methods=['POST'])
@@ -308,10 +288,10 @@ def unlike_post(data, id):
             return jsonify({'message': 'Post unliked successfully'}), 200
         else:
             # user already unliked the post
-            return jsonify({'message': 'You already unliked this post'}), 202
+            return jsonify({'message': 'You already unliked this post'}), 200
     else:
         # post with given id not found
-        return jsonify({'message': 'Post with given id not found'}), 404
+        return jsonify({'error': 'Post with given id not found'}), 404
 
 
 # ------------------------------------------------------------------------------------------------------------------------
@@ -345,4 +325,4 @@ def create_comment(data, id):
         post.save()
         return jsonify({"Comment-ID": comment.id}), 201
     else:
-        return jsonify({'message': 'Post with given id not found'}), 404
+        return jsonify({'error': 'Post with given id not found'}), 404

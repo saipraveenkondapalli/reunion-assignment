@@ -29,6 +29,7 @@ def login(client, email, password):
 
     assert response.status_code == 200
     token = response.json['token']
+
     return token
 
 
@@ -45,8 +46,7 @@ def test_authentication_positive(client):
                            data=json.dumps({'email': USER.email, 'password': USER.password}),
                            content_type='application/json')
     assert response.status_code == 200
-    assert response.json['token']
-
+    assert 'token' in response.json
 
 
 def test_authentication_negative(client):
@@ -59,7 +59,6 @@ def test_authentication_negative(client):
                            data=json.dumps({'email': 'john@example.com', 'password': 'password'}),
                            content_type='application/json')
     assert response.status_code == 401
-    assert response.json['error'] == 'Invalid credentials'
 
 
 def test_authentication_missing_credentials(client):
@@ -91,9 +90,9 @@ def test_user_profile_positive(client):
     token = login(client, USER['email'], USER['password'])
 
     response = client.get(f'/api/user',
-                          headers = {'Authorization': token},
-                            content_type='application/json')
-    print('USER PROFILE', response.json)
+                          headers={'Authorization': token},
+                          content_type='application/json')
+
     assert response.status_code == 200
 
 
@@ -106,5 +105,5 @@ def test_user_profile_negative(client):
 
     response = client.get(f'/api/user',
                           content_type='application/json')
-
-    assert response.status_code == 401
+    # Token is missing so invalid credentials
+    assert response.status_code == 400

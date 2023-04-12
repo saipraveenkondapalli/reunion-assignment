@@ -16,6 +16,8 @@ EXPOSE 5000
 # Set the Flask app to run when the container launches
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
+ENV REUNION_DB=mongodb+srv://saipraveenkondapalli0:0Ul0zHoeuB87yxgL@cluster0.v80uxg8.mongodb.net/reunion?retryWrites=true
+ENV SECRET_KEY=QAZSDFeWQbGtwqQPOTZx
 # Run the Flask app when the container launches
 
 RUN pytest -v

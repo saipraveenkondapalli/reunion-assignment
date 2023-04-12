@@ -4,11 +4,13 @@ import pytest
 from project.app import app
 from project.models import User
 
+
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
     client = app.test_client()
     yield client
+
 
 def login(client, id):
     """
@@ -27,7 +29,6 @@ def login(client, id):
     return token
 
 
-
 def test_like_postive(client):
     """
     Authorized user try to like a post
@@ -41,10 +42,9 @@ def test_like_postive(client):
     response = client.post('/api/like/2',
                            headers={'Authorization': token},
                            content_type='application/json')
-    # 200 - Like added
-    # 202 - You already like this post
-
-    assert response.status_code == 200 or response.status_code == 202
+    # Liked post or already liked
+    assert response.status_code == 200
+    assert 'message' in response.json
 
 
 def test_like_negative(client):
@@ -60,6 +60,7 @@ def test_like_negative(client):
                            content_type='application/json')
     # 404 - Post not found
     assert response.status_code == 404
+    assert 'error' in response.json
 
 
 def test_unlike_positive(client):
@@ -75,9 +76,9 @@ def test_unlike_positive(client):
     response = client.post('/api/unlike/3',
                            headers={'Authorization': token},
                            content_type='application/json')
-    # 200 - Like removed
-    # 202 - You already unlike this post
-    assert response.status_code == 200 or response.status_code == 202
+    # 200 - Unliked post or already unliked
+    assert response.status_code == 200
+    assert 'message' in response.json
 
 
 def test_unlike_negative(client):
@@ -90,13 +91,14 @@ def test_unlike_negative(client):
     """
     token = login(client, 1)
     response = client.post('/api/unlike/100',
-                           headers = {'Authorization': token},
-                            content_type='application/json')
+                           headers={'Authorization': token},
+                           content_type='application/json')
     # 404 - Post not found
     assert response.status_code == 404
+    assert 'error' in response.json
 
 
-def test_comment_postive(client):
+def test_comment_positive(client):
     """
     Authorized user try to comment a post
     Example:
@@ -110,7 +112,7 @@ def test_comment_postive(client):
                            data=json.dumps({'comment': 'Test comment'}),
                            content_type='application/json')
     # 201 - Comment added
-    assert response.status_code == 201
+    assert response.status_code == 200
     assert 'Comment-ID' in response.json
 
 
@@ -127,6 +129,3 @@ def test_comment_negative(client):
                            content_type='application/json')
     # 404 - Post not found
     assert response.status_code == 404
-
-
-

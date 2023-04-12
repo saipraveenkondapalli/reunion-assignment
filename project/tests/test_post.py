@@ -30,7 +30,7 @@ def login(client, id):
 
 def test_get_post(client):
     """
-    Get all posts
+    Get a post with given id
     :param client:
     :return:
     """
@@ -44,11 +44,32 @@ def test_get_post(client):
     assert 'comments' in response.json
 
 
+def test_get_post_negative(client):
+    """
+    Try to get a post that does not exist and look for error code 404 and check error message in response
+    :param client:
+    :return:
+    """
+    post_id = 100
+    response = client.get(f'/api/posts/{post_id}')
+    assert response.status_code == 404
+    assert 'error' in response.json
+
+
+def test_get_all_posts(client):
+    """
+    Get all posts
+    """
+    response = client.get('/api/all_posts')
+    assert response.status_code == 200
+    assert len(response.json) > 0
+
+
 def test_post_create(client):
     """
     Create a new post after login with valid credentials
-    :param client:
-    :return:
+    Here we are creating 3 posts with title and description
+    we get the highest id from the database and add 1 to it for the title and description
     """
 
     token = login(client, 1)
@@ -59,14 +80,32 @@ def test_post_create(client):
         post_highest_id = post_highest_id.id + 1
 
     # create 3 new posts
-    for i in range(post_highest_id, post_highest_id + 4):
+    for i in range(post_highest_id, post_highest_id + 3):
         response = client.post('/api/posts',
                                data=json.dumps({'title': f'Sample Post {i}',
                                                 'description': f'Sample Description for post {i}'}),
                                headers={'Authorization': token},
                                content_type='application/json')
 
-        assert response.status_code == 201
+        assert response.status_code == 200
+        assert 'id' in response.json
+        assert 'Title' in response.json
+        assert 'Description' in response.json
+        assert 'Created Time(UTC)' in response.json
+
+
+def test_post_create_negative(client):
+    """
+    Try to create a post with missing title by authorized user
+    """
+    token = login(client, 1)
+    response = client.post('/api/posts',
+                           data=json.dumps({'description': 'Sample Description for post 1'}),
+                           headers={'Authorization': token},
+                           content_type='application/json')
+
+    assert response.status_code == 400
+    assert 'error' in response.json
 
 
 def test_delete_post_positive(client):
@@ -84,9 +123,9 @@ def test_delete_post_positive(client):
                              content_type='application/json')
 
     # 200 - Deleted successfully
-    # 400 - Post does not exist or already deleted
+    # 404 - Post does not exist or already deleted
 
-    assert response.status_code == 200 or response.status_code == 401
+    assert response.status_code == 200 or response.status_code == 404
 
 
 def test_delete_post_negative(client):
@@ -101,7 +140,7 @@ def test_delete_post_negative(client):
                              headers={'Authorization': token},
                              content_type='application/json')
 
-    assert response.status_code == 401
+    assert response.status_code == 404
 
 
 def test_delete_post_unauthorized(client):

@@ -1,13 +1,15 @@
+import os
+
 from flask import Flask
 from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'super-secret'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 # MongoDB configuration
 app.config['MONGODB_SETTINGS'] = {
     'db': 'flask',
-    'host': 'mongodb+srv://saipraveenkondapalli0:0Ul0zHoeuB87yxgL@cluster0.v80uxg8.mongodb.net/reunion?retryWrites=true&w=majority'
+    'host': os.environ.get('REUNION_DB'),
 }
 
 db = MongoEngine(app)
