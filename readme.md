@@ -35,6 +35,19 @@ This project is an API assignment for `Backend Engineer` role, built using Pytho
       * All of them share the same password `password123`
 * There are about 17 Posts preloaded in the database, you can check their details at api endpoint `/api/all_posts`
 
+## API END POINTS
+* `/api/authenticate`        - POST - Authenticate a user
+* `/api/user`                - GET - Get authenticated user details
+* `/api/follow/<id>`         - POST - Follow a user
+* `/api/unfollow/<id>`       - POST - Unfollow a user
+* `/api/all_posts`           - GET - Get all posts
+* `/api/posts`               - POST - Create a post
+* `/api/posts/<id>`          - GET - Get a post
+* `/api/posts/<id>`          - DELETE - Delete a post
+* `/api/like/<id>`           - POST - Like a post
+* `/api/unlike/<id>`         - POST - Unlike a post
+* `/api/comment/<id>`        - POST - Comment on a post
+
 ## Contact Me
 * Email: `saipraveenkondapalli@gmail.com`
 * website : https://bit.ly/s_p_k
