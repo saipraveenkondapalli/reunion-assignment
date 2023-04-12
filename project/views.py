@@ -153,7 +153,7 @@ def get_all_posts():
             json_data.append({'id': str(post.id), 'title': post.title, 'desc': post.description,
                               'created_at': post.created_time, 'comments': comments, 'likes': len(post.likes)})
 
-        return jsonify(json.loads(json.dumps(json_data, indent=4))), 200
+        return jsonify(json_data), 200
     else:
         # return an error message if no posts found
         return jsonify({'error': 'No posts found'}), 404
