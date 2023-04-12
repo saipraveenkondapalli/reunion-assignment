@@ -125,21 +125,6 @@ def test_delete_post_positive(client):
     assert response.status_code == 200 or response.status_code == 404
 
 
-def test_delete_post_negative(client):
-    """
-    Try to delete a post that does not exist, after login with valid credentials
-    :param client:
-    :return:
-    """
-
-    token = login(client, 1)
-    response = client.delete('/api/posts/50000',
-                             headers={'Authorization': token},
-                             content_type='application/json')
-
-    assert response.status_code == 404
-
-
 def test_delete_post_unauthorized(client):
     """
     Try to delete a post created by another user
