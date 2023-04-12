@@ -1,4 +1,4 @@
-#Reunion Social API Assignment
+##Reunion Social API Assignment
 ##Description
 This project is an API assignment for `Backend Engineer` role, built using Python and Flask as the backend technology, and MongoDB as the database. The MongoDB is hosted in the cloud (MongoDB Atlas) for simplicity.
 
