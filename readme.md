@@ -23,9 +23,11 @@ docker build -t reunion/assignment .
 docker run -p 5000:5000 reunion/assignment
  ``` 
 * you can stop the docker container by running 
+
 ```sh
 docker stop <container_id>
-* ```
+ ```
+
 * you the get the ```container id``` by running 
 ```sh
 docker ps
