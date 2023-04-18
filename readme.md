@@ -12,11 +12,11 @@ This project is an API assignment for `Backend Engineer` role, built using Pytho
 ## Docker Instructions
 * Install Docker if you don't have it already
 * Clone the repo
-* Run `docker build -t reunion/assignment .` in the root directory
+* Run ```docker build -t reunion/assignment .``` in the root directory
 * we are using name `reunion/assignment` for the image, you can change it to whatever you want
-* Run `docker run -p 5000:5000 reunion/assignment` to run the image on port `5000`
-* you can stop the docker container by running `docker stop <container_id>`
-* you the get the container id by running `docker ps`
+* Run ```docker run -p 5000:5000 reunion/assignment``` to run the image on port `5000`
+* you can stop the docker container by running ```docker stop <container_id>```
+* you the get the container id by running ```docker ps```
 
 ## Testing Instructions
 * Go to the root directory of the project, if you are using docker, run `docker run -it reunion/assignment bash` to get into the container
