@@ -47,17 +47,19 @@ pytest -v
 
 
 ## API END POINTS
-* `/api/authenticate`        - POST - Authenticate a user
-* `/api/user`                - GET - Get authenticated user details
-* `/api/follow/<id>`         - POST - Follow a user
-* `/api/unfollow/<id>`       - POST - Unfollow a user
-* `/api/all_posts`           - GET - Get all posts
-* `/api/posts`               - POST - Create a post
-* `/api/posts/<id>`          - GET - Get a post
-* `/api/posts/<id>`          - DELETE - Delete a post
-* `/api/like/<id>`           - POST - Like a post
-* `/api/unlike/<id>`         - POST - Unlike a post
-* `/api/comment/<id>`        - POST - Comment on a post
+|API End Point | Method | Description |
+| --- | ---| --- |
+|`/api/authenticate`        | POST|  Authenticate a user |
+|`/api/user`                | GE|T  Get authenticated user details |
+|`/api/follow/<id>`        | POST|  Follow a user |
+|`/api/unfollow/<id>`       | POST|  Unfollow a user |
+|`/api/all_posts`           | GET|  Get all posts |
+|`/api/posts`               | POST|  Create a post |
+|`/api/posts/<id>`          | GET|  Get a post |
+|`/api/posts/<id>`          | DELETE|  Delete a post |
+|`/api/like/<id>`           | POST|  Like a post |
+|`/api/unlike/<id>`         | POST| Unlike a post |
+|`/api/comment/<id>`        | POST|  Comment on a post |
 
 
 ## Footnotes
